@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fighter Stats</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+        }
+        .container {
+            margin: 20px auto;
+            width: 90%;
+            max-width: 1200px;
+        }
+        .buttons-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .buttons-section h2 {
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .button-row button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .fighters-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .fighter-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: calc(48% - 10px); /* Two fighters per row with small spacing */
+            box-sizing: border-box;
+        }
+        .fighter-card h3 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        .fighter-card p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fighter Stats</h1>
+    </header>
+    <div class="container">
+        <!-- Buttons to filter fighters by weight class -->
+        <div class="buttons">
+            <button onclick="filterFighters('All')">All</button>
+            <button onclick="filterFighters('Flyweight')">Flyweight</button>
+            <button onclick="filterFighters('Bantamweight')">Bantamweight</button>
+            <button onclick="filterFighters('Featherweight')">Featherweight</button>
+            <button onclick="filterFighters('Lightweight')">Lightweight</button>
+            <button onclick="filterFighters('Welterweight')">Welterweight</button>
+            <button onclick="filterFighters('Middleweight')">Middleweight</button>
+            <button onclick="filterFighters('Light Heavyweight')">Light Heavyweight</button>
+            <button onclick="filterFighters('Heavyweight')">Heavyweight</button>
+        </div>
+        
+
+        <!-- Container for fighter cards -->
+        <div class="fighters-row" id="fighters-container">
+            <p>Loading fighters...</p>
+        </div>
+    </div>
+
+    <script>
+        let allFighters = []; // To store all fighters globally
+
+        // Fetch fighter data from the API
+        fetch('/get_fighters')
+            .then(response => response.json())
+            .then(data => {
+                allFighters = data; // Store the fetched fighters globally
+                displayFighters(data); // Display all fighters initially
+            })
+            .catch(error => {
+                console.error('Error fetching fighter data:', error);
+                document.getElementById('fighters-container').innerHTML = '<p>Error loading fighters.</p>';
+            });
+
+        // Function to display fighters
+        function displayFighters(fighters) {
+            const container = document.getElementById('fighters-container');
+            container.innerHTML = ''; // Clear previous content
+
+            fighters.forEach(fighter => {
+                const card = document.createElement('div');
+                card.className = 'fighter-card';
+
+                card.innerHTML = `
+                    <h3>${fighter.name}</h3>
+                    <p><strong>Weight Class:</strong> ${fighter.weight_class}</p>
+                    <p><strong>Wins:</strong> ${fighter.wins}</p>
+                    <p><strong>Losses:</strong> ${fighter.losses}</p>
+                    <p><strong>Height:</strong> ${fighter.height} cm</p>
+                    <p><strong>Weight:</strong> ${fighter.weight} kg</p>
+                    <p><strong>Reach:</strong> ${fighter.reach} cm</p>
+                    <p><strong>Stance:</strong> ${fighter.stance}</p>
+                    <p><strong>Performance Score:</strong> ${fighter.performance_score}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Function to filter fighters by weight class
+        function filterFighters(weightClass) {
+            if (weightClass === 'All') {
+                displayFighters(allFighters); // Show all fighters
+            } else {
+                const filteredFighters = allFighters.filter(
+                    fighter => fighter.weight_class === weightClass
+                );
+                displayFighters(filteredFighters); // Show only fighters in the selected weight class
+            }
+        }
+    </script>
+    <div class="container">
+        <h2>Visualizations</h2>
+        <div>
+            <h3>Top 10 Performance Scores</h3>
+            <img src="/static/performance_scores.png" alt="Performance Scores">
+        </div>
+        <div>
+            <h3>Top 10 Win-to-Loss Ratios</h3>
+            <img src="/static/win_loss_ratio.png" alt="Win/Loss Ratios">
+        </div>
+        <div>
+            <h3>Top 10 Takedown Averages</h3>
+            <img src="/static/takedown_avg.png" alt="Takedown Averages">
+        </div>
+        <div>
+            <h3>Top 10 SLpM</h3>
+            <img src="/static/slpm.png" alt="SLpM">
+        </div>
+    </div>
+</body>
+</html>
